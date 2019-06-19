@@ -351,9 +351,6 @@ void TinyLoRaLight::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned cha
   //Set RFM in Standby mode wait on mode ready
   RFM_Write(MODE_STDBY,0x81);
   
-  // wait for standby mode
-  delay(10);
-
   // select rfm channel
   if (_isMultiChan == 1) {
     RFM_Write(REG_FRF_MSB, pgm_read_byte(&(LoRa_Frequency[randomNum][0])));

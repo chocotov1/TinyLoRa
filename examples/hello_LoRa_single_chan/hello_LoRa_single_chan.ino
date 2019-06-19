@@ -8,8 +8,10 @@
 // Copyright 2015, 2016 Ideetron B.V.
 //
 // Modified by Brent Rubell for Adafruit Industries, 2018
+//
+// Modified by chocotov1, 2019
 /************************** Configuration ***********************************/
-#include <TinyLoRa.h>
+#include <TinyLoRaLight.h>
 #include <SPI.h>
 
 // Visit your thethingsnetwork.org device console
@@ -31,11 +33,7 @@ unsigned char loraData[11] = {"hello LoRa"};
 // How many times data transfer should occur, in seconds
 const unsigned int sendInterval = 30;
 
-// Pinout for Feather 32u4 LoRa
-TinyLoRa lora = TinyLoRa(7, 8);
-
-// Pinout for Feather M0 LoRa
-//TinyLoRa lora = TinyLoRa(3, 8);
+TinyLoRaLight lora = TinyLoRaLight(6);
 
 void setup()
 {
@@ -52,13 +50,8 @@ void setup()
   lora.setChannel(CH2);
   // set datarate
   lora.setDatarate(SF7BW125);
-    if(!lora.begin())
-  {
-    Serial.println("Failed");
-    Serial.println("Check your radio");
-    while(true);
-  }
-  Serial.println("OK");
+  lora.begin();
+  Serial.println("Initialized");
 }
 
 void loop()

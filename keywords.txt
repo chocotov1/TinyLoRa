@@ -1,9 +1,9 @@
 ########################################################
-# Syntax Coloring Map for TinyLoRa Library #
+# Syntax Coloring Map for TinyLoRaLight Library #
 ########################################################
 # Class TinyLoRa
 ###################################################################
-TinyLoRa	KEYWORD1
+TinyLoRaLight	KEYWORD1
 
 ###################################################################
 # Methods and Functions LORA

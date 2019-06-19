@@ -8,8 +8,10 @@
 // Copyright 2015, 2016 Ideetron B.V.
 //
 // Modified by Brent Rubell for Adafruit Industries, 2018
+//
+// Modified by chocotov1, 2019
 /************************** Configuration ***********************************/
-#include <TinyLoRa.h>
+#include <TinyLoRaLight.h>
 #include <SPI.h>
 #include "DHT.h"
 
@@ -32,18 +34,11 @@ unsigned char loraData[4];
 // How many times data transfer should occur, in seconds
 const unsigned int sendInterval = 30;
 
-// Pinout for Adafruit Feather 32u4 LoRa
-TinyLoRa lora = TinyLoRa(7, 8);
-
-// Pinout for Adafruit Feather M0 LoRa
-//TinyLoRa lora = TinyLoRa(3, 8);
+TinyLoRaLight lora = TinyLoRaLight(6);
 
 // pin the DHT22 is connected to
 #define DHTPIN 10
 DHT dht(DHTPIN, DHT22);
-
-// Pinout for Adafruit Feather M0 LoRa
-//TinyLoRa lora = TinyLoRa(3, 8);
 
 void setup()
 {
@@ -60,13 +55,8 @@ void setup()
   lora.setChannel(MULTI);
   // set datarate
   lora.setDatarate(SF7BW125);
-  if(!lora.begin())
-  {
-    Serial.println("Failed");
-    Serial.println("Check your radio");
-    while(true);
-  }
-  Serial.println("OK");
+  lora.begin();
+  Serial.println("Initialized");
 
   // Initialize DHT
   dht.begin();

@@ -45,7 +45,7 @@
  * LGPL license, all text here must be included in any redistribution.
  *
  */
-#include "TinyLoRa.h"
+#include "TinyLoRaLight.h"
 #include <SPI.h>
 
 extern uint8_t NwkSkey[16]; ///< Network Session Key
@@ -61,7 +61,7 @@ static SPISettings RFM_spisettings = SPISettings(4000000, MSBFIRST, SPI_MODE0);
 */
 
 #ifdef AU915
-const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
+const unsigned char PROGMEM TinyLoRaLight::LoRa_Frequency[8][3] = {
 	{ 0xE5, 0x33, 0x5A },	//Channel 0 916.800 MHz / 61.035 Hz = 15020890 = 0xE5335A
 	{ 0xE5, 0x40, 0x26 },	//Channel 2 917.000 MHz / 61.035 Hz = 15024166 = 0xE54026
 	{ 0xE5, 0x4C, 0xF3 },	//Channel 3 917.200 MHz / 61.035 Hz = 15027443 = 0xE54CF3
@@ -74,7 +74,7 @@ const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
 #endif
 
 #ifdef EU863
-const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
+const unsigned char PROGMEM TinyLoRaLight::LoRa_Frequency[8][3] = {
 	{ 0xD9, 0x06, 0x8B },	//Channel 0 868.100 MHz / 61.035 Hz = 14222987 = 0xD9068B
 	{ 0xD9, 0x13, 0x58 },	//Channel 1 868.300 MHz / 61.035 Hz = 14226264 = 0xD91358
 	{ 0xD9, 0x20, 0x24 },	//Channel 2 868.500 MHz / 61.035 Hz = 14229540 = 0xD92024
@@ -88,7 +88,7 @@ const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
 #endif
 
 #ifdef US902
-const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
+const unsigned char PROGMEM TinyLoRaLight::LoRa_Frequency[8][3] = {
 	{ 0xE1, 0xF9, 0xC0 },		//Channel 0 903.900 MHz / 61.035 Hz = 14809536 = 0xE1F9C0
 	{ 0xE2, 0x06, 0x8C },		//Channel 1 904.100 MHz / 61.035 Hz = 14812812 = 0xE2068C
 	{ 0xE2, 0x13, 0x59},		//Channel 2 904.300 MHz / 61.035 Hz = 14816089 = 0xE21359
@@ -101,7 +101,7 @@ const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
 #endif
 
 #ifdef AS920
-const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
+const unsigned char PROGMEM TinyLoRaLight::LoRa_Frequency[8][3] = {
 	{ 0xE6, 0xCC, 0xF4 },		//Channel 0 868.100 MHz / 61.035 Hz = 15125748 = 0xE6CCF4
 	{ 0xE6, 0xD9, 0xC0 },		//Channel 1 868.300 MHz / 61.035 Hz = 15129024 = 0xE6D9C0
 	{ 0xE6, 0x8C, 0xF3 },		//Channel 2 868.500 MHz / 61.035 Hz = 15109363 = 0xE68CF3
@@ -120,7 +120,7 @@ const unsigned char PROGMEM TinyLoRa::LoRa_Frequency[8][3] = {
 *****************************************************************************************
 */
 
-const unsigned char PROGMEM TinyLoRa::S_Table[16][16] = {
+const unsigned char PROGMEM TinyLoRaLight::S_Table[16][16] = {
 	  {0x63,0x7C,0x77,0x7B,0xF2,0x6B,0x6F,0xC5,0x30,0x01,0x67,0x2B,0xFE,0xD7,0xAB,0x76},
 	  {0xCA,0x82,0xC9,0x7D,0xFA,0x59,0x47,0xF0,0xAD,0xD4,0xA2,0xAF,0x9C,0xA4,0x72,0xC0},
 	  {0xB7,0xFD,0x93,0x26,0x36,0x3F,0xF7,0xCC,0x34,0xA5,0xE5,0xF1,0x71,0xD8,0x31,0x15},
@@ -149,7 +149,7 @@ const unsigned char PROGMEM TinyLoRa::S_Table[16][16] = {
     @param datarate Bandwidth and Frequency plan.
 */
 /**************************************************************************/
-void TinyLoRa::setDatarate(rfm_datarates_t datarate) {
+void TinyLoRaLight::setDatarate(rfm_datarates_t datarate) {
   _sf, _bw, _modemcfg = 0;
   switch(datarate) {
     case SF7BW125:
@@ -201,7 +201,7 @@ void TinyLoRa::setDatarate(rfm_datarates_t datarate) {
     @param channel Which channel to send data
 */
 /**************************************************************************/
-void TinyLoRa::setChannel(rfm_channels_t channel) {
+void TinyLoRaLight::setChannel(rfm_channels_t channel) {
   _rfmMSB, _rfmLSB, _rfmMID = 0;
   switch (channel)
   {
@@ -264,16 +264,13 @@ void TinyLoRa::setChannel(rfm_channels_t channel) {
 
 /**************************************************************************/
 /*!
-    @brief  Instanciates a new TinyLoRa class, including assigning
-            irq and cs pins to the RFM breakout.
-    @param    rfm_irq
-              The RFM module's interrupt pin (rfm_nss).
+    @brief  Instanciates a new TinyLoRaLight class, including assigning
+            cs pin to the RFM breakout.
     @param    rfm_nss
               The RFM module's slave select pin (rfm_nss).
 */
 /**************************************************************************/
-TinyLoRa::TinyLoRa(int8_t rfm_irq, int8_t rfm_nss) {
-  _irq = rfm_irq;
+TinyLoRaLight::TinyLoRaLight(int8_t rfm_nss) {
   _cs = rfm_nss;
 }
 
@@ -288,7 +285,7 @@ TinyLoRa::TinyLoRa(int8_t rfm_irq, int8_t rfm_nss) {
      @return True if the RFM has been initialized
  */
  /**************************************************************************/
-bool TinyLoRa::begin() 
+bool TinyLoRaLight::begin() 
 {
 
   // start and configure SPI
@@ -297,14 +294,6 @@ bool TinyLoRa::begin()
   // RFM95 ss as output
   pinMode(_cs, OUTPUT);
 
-  // RFM95 _irq as input
-  pinMode(_irq, INPUT);
-
-  uint8_t ver = RFM_Read(0x42);
-  if(ver!=18){
-    return 0;
-  }
-  
   //Switch RFM to sleep
   RFM_Write(0x01,MODE_SLEEP);
 
@@ -355,7 +344,7 @@ bool TinyLoRa::begin()
               Length of the package to be sent.
 */
 /**************************************************************************/
-void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Package_Length)
+void TinyLoRaLight::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Package_Length)
 {
   unsigned char i;
 
@@ -364,9 +353,6 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
   
   // wait for standby mode
   delay(10);
-  
-  //Switch _irq to TxDone
-  RFM_Write(0x40,0x40);
 
   // select rfm channel
   if (_isMultiChan == 1) {
@@ -399,11 +385,8 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
   //Switch RFM to Tx
   RFM_Write(0x01,MODE_TX);
 
-  //Wait _irq to pull high
-  while(digitalRead(_irq) == LOW)
-  {
-    
-  }
+  delayMicroseconds(50);
+
   //Switch RFM to sleep
   RFM_Write(0x01,MODE_SLEEP);
 }
@@ -417,7 +400,7 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
               Data to be written to the register.
 */
 /**************************************************************************/
-void TinyLoRa::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data) 
+void TinyLoRaLight::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data) 
 {
   // br: SPI Transfer Debug
   #ifdef DEBUG
@@ -443,34 +426,6 @@ void TinyLoRa::RFM_Write(unsigned char RFM_Address, unsigned char RFM_Data)
 
 /**************************************************************************/
 /*!
-    @brief    Funtion that reads a register from the RFM
-    @param    RFM_Address
-              An address of the register to be read.
-    @return   Value exchaged in SPI transaction
-*/
-/**************************************************************************/
-uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
-    
-    SPI.beginTransaction(RFM_spisettings);
-    
-    digitalWrite(_cs, LOW);
-    
-    SPI.transfer(RFM_Address & 0x7F);
-    
-    uint8_t RFM_Data = SPI.transfer(0x00);
-    
-    digitalWrite(_cs, HIGH);
-      // br: SPI Transfer Debug
-    #ifdef DEBUG
-      Serial.print("SPI Read ADDR: ");
-      Serial.print(RFM_Address, HEX);
-      Serial.print(" DATA: ");
-      Serial.println(RFM_Data, HEX);
-    #endif
-    return RFM_Data;
-}
-/**************************************************************************/
-/*!
     @brief    Function to assemble and send a LoRaWAN package.
     @param    *Data
               Pointer to the array of data to be transmitted.
@@ -480,7 +435,7 @@ uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
               Length of data to be sent.
 */
 /**************************************************************************/
-void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx)
+void TinyLoRaLight::sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx)
 {
   
   //Define variables
@@ -570,7 +525,7 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned
               Direction of message (is up).
 */
 /**************************************************************************/
-void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
+void TinyLoRaLight::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
 {
   unsigned char i = 0x00;
   unsigned char j;
@@ -655,7 +610,7 @@ void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, u
               Direction of message (is up?).
 */
 /**************************************************************************/
-void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
+void TinyLoRaLight::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
 {
   unsigned char i;
   unsigned char Block_B[16];
@@ -829,7 +784,7 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
               Pointer to Key2.
 */
 /**************************************************************************/
-void TinyLoRa::Generate_Keys(unsigned char *K1, unsigned char *K2)
+void TinyLoRaLight::Generate_Keys(unsigned char *K1, unsigned char *K2)
 {
   unsigned char i;
   unsigned char MSB_Key;
@@ -882,7 +837,7 @@ void TinyLoRa::Generate_Keys(unsigned char *K1, unsigned char *K2)
     K2[15] = K2[15] ^ 0x87;
   }
 }
-void TinyLoRa::Shift_Left(unsigned char *Data)
+void TinyLoRaLight::Shift_Left(unsigned char *Data)
 {
   unsigned char i;
   unsigned char Overflow = 0;
@@ -922,7 +877,7 @@ void TinyLoRa::Shift_Left(unsigned char *Data)
               A pointer to the data to be xor'd.
 */
 /**************************************************************************/
-void TinyLoRa::XOR(unsigned char *New_Data,unsigned char *Old_Data)
+void TinyLoRaLight::XOR(unsigned char *New_Data,unsigned char *Old_Data)
 {
   unsigned char i;
 
@@ -941,7 +896,7 @@ void TinyLoRa::XOR(unsigned char *New_Data,unsigned char *Old_Data)
               Pointer to AES encryption key.
 */
 /**************************************************************************/
-void TinyLoRa::AES_Encrypt(unsigned char *Data, unsigned char *Key)
+void TinyLoRaLight::AES_Encrypt(unsigned char *Data, unsigned char *Key)
 {
   unsigned char Row, Column, Round = 0;
   unsigned char Round_Key[16];
@@ -1024,7 +979,7 @@ void TinyLoRa::AES_Encrypt(unsigned char *Data, unsigned char *Key)
               Pointer to bytes of the states-to-be-xor'd.
 */
 /**************************************************************************/
-void TinyLoRa::AES_Add_Round_Key(unsigned char *Round_Key, unsigned char (*State)[4])
+void TinyLoRaLight::AES_Add_Round_Key(unsigned char *Round_Key, unsigned char (*State)[4])
 {
   unsigned char Row, Collum;
 
@@ -1044,7 +999,7 @@ void TinyLoRa::AES_Add_Round_Key(unsigned char *Round_Key, unsigned char (*State
               Individual byte, from state array.
 */
 /**************************************************************************/
-unsigned char TinyLoRa::AES_Sub_Byte(unsigned char Byte)
+unsigned char TinyLoRaLight::AES_Sub_Byte(unsigned char Byte)
 {
 //  unsigned char S_Row,S_Collum;
 //  unsigned char S_Byte;
@@ -1064,7 +1019,7 @@ unsigned char TinyLoRa::AES_Sub_Byte(unsigned char Byte)
               Pointer to state array.
 */
 /**************************************************************************/
-void TinyLoRa::AES_Shift_Rows(unsigned char (*State)[4])
+void TinyLoRaLight::AES_Shift_Rows(unsigned char (*State)[4])
 {
   unsigned char Buffer;
 
@@ -1097,7 +1052,7 @@ void TinyLoRa::AES_Shift_Rows(unsigned char (*State)[4])
               Pointer to state array.
 */
 /**************************************************************************/
-void TinyLoRa::AES_Mix_Collums(unsigned char (*State)[4])
+void TinyLoRaLight::AES_Mix_Collums(unsigned char (*State)[4])
 {
   unsigned char Row,Collum;
   unsigned char a[4], b[4];
@@ -1134,7 +1089,7 @@ void TinyLoRa::AES_Mix_Collums(unsigned char (*State)[4])
               Pointer to round key.
 */
 /**************************************************************************/
-void TinyLoRa::AES_Calculate_Round_Key(unsigned char Round, unsigned char *Round_Key)
+void TinyLoRaLight::AES_Calculate_Round_Key(unsigned char Round, unsigned char *Round_Key)
 {
   unsigned char i, j, b, Rcon;
   unsigned char Temp[4];

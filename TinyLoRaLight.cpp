@@ -382,7 +382,7 @@ void TinyLoRaLight::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned cha
   //Switch RFM to Tx
   RFM_Write(0x01,MODE_TX);
 
-  delayMicroseconds(50);
+  delayMicroseconds(100);
 
   //Switch RFM to sleep
   RFM_Write(0x01,MODE_SLEEP);
